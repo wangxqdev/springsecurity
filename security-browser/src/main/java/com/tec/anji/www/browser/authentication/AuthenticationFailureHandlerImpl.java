@@ -1,6 +1,7 @@
 package com.tec.anji.www.browser.authentication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tec.anji.www.browser.web.support.SimpleResponse;
 import com.tec.anji.www.core.properties.LoginType;
 import com.tec.anji.www.core.properties.SecurityProperties;
 import org.apache.commons.logging.Log;
@@ -39,7 +40,7 @@ public class AuthenticationFailureHandlerImpl extends SimpleUrlAuthenticationFai
         response.setContentType("application/json;charset=UTF-8");
         if (LoginType.JSON.equals(securityProperties.getBrowser().getLoginType())) {
             try (PrintWriter printWriter = response.getWriter()) {
-                printWriter.write(objectMapper.writeValueAsString(exception));
+                printWriter.write(objectMapper.writeValueAsString(new SimpleResponse(exception.getMessage())));
                 printWriter.flush();
             }
         } else {

@@ -1,6 +1,8 @@
 package com.tec.anji.www.browser.config;
 
 import com.tec.anji.www.core.properties.SecurityProperties;
+import com.tec.anji.www.core.validate.code.web.filter.ValidateCodeFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -19,6 +22,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private SecurityProperties securityProperties;
 
+    @Autowired
     public BrowserSecurityConfig(AuthenticationSuccessHandler authenticationSuccessHandler, AuthenticationFailureHandler authenticationFailureHandler, SecurityProperties securityProperties) {
         this.authenticationSuccessHandler = authenticationSuccessHandler;
         this.authenticationFailureHandler = authenticationFailureHandler;
@@ -30,15 +34,17 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 //        默认登录方式
 //        http.httpBasic()
 //        表单登录方式
-        http.formLogin()
+        http.addFilterBefore(new ValidateCodeFilter(authenticationFailureHandler), UsernamePasswordAuthenticationFilter.class)
+                .formLogin()
                 .loginPage("/authentication/require")
                 .loginProcessingUrl("/authentication/form")
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(authenticationFailureHandler)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/authentication/require"
-                        , securityProperties.getBrowser().getLoginPage()).permitAll()
+                .antMatchers("/authentication/require",
+                        securityProperties.getBrowser().getLoginPage(),
+                        "/code/image").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -46,10 +52,8 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * encode() 存至数据库前使用
-     * matches() 系统自动调用
-     *
      * @return PasswordEncoder
+     * @see PasswordEncoder
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
