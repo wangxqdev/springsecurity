@@ -31,10 +31,12 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        ValidateCodeFilter validateCodeFilter = new ValidateCodeFilter(authenticationFailureHandler, securityProperties);
+        validateCodeFilter.afterPropertiesSet();
 //        默认登录方式
 //        http.httpBasic()
 //        表单登录方式
-        http.addFilterBefore(new ValidateCodeFilter(authenticationFailureHandler), UsernamePasswordAuthenticationFilter.class)
+        http.addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin()
                 .loginPage("/authentication/require")
                 .loginProcessingUrl("/authentication/form")
