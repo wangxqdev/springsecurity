@@ -28,13 +28,16 @@ public class AuthenticationFailureHandlerImpl extends SimpleUrlAuthenticationFai
     private SecurityProperties securityProperties;
 
     @Autowired
-    public AuthenticationFailureHandlerImpl(ObjectMapper objectMapper, SecurityProperties securityProperties) {
+    public AuthenticationFailureHandlerImpl(ObjectMapper objectMapper,
+                                            SecurityProperties securityProperties) {
         this.objectMapper = objectMapper;
         this.securityProperties = securityProperties;
     }
 
     @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+    public void onAuthenticationFailure(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        AuthenticationException exception) throws IOException, ServletException {
         log.info("登录失败");
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.setContentType("application/json;charset=UTF-8");

@@ -26,17 +26,20 @@ public class AuthenticationSuccessHandlerImpl extends SavedRequestAwareAuthentic
     private SecurityProperties securityProperties;
 
     @Autowired
-    public AuthenticationSuccessHandlerImpl(ObjectMapper objectMapper, SecurityProperties securityProperties) {
+    public AuthenticationSuccessHandlerImpl(ObjectMapper objectMapper,
+                                            SecurityProperties securityProperties) {
         this.objectMapper = objectMapper;
         this.securityProperties = securityProperties;
     }
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
+    public void onAuthenticationSuccess(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        Authentication authentication) throws ServletException, IOException {
         log.info("登录成功");
         response.setContentType("application/json;charset=UTF-8");
         if (LoginType.JSON.equals(securityProperties.getBrowser().getLoginType())) {
-            try(PrintWriter printWriter = response.getWriter()) {
+            try (PrintWriter printWriter = response.getWriter()) {
                 printWriter.write(objectMapper.writeValueAsString(authentication));
                 printWriter.flush();
             }

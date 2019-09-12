@@ -8,4 +8,6 @@ public class BrowserProperties {
     private String loginPage = "/anji-signIn.html";
 
     private LoginType loginType = LoginType.JSON;
+
+    private int rememberMeSeconds = 3600;
 }

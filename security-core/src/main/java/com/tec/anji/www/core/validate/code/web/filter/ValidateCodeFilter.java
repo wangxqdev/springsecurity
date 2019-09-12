@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ValidateCodeFilter extends OncePerRequestFilter implements InitializingBean {
@@ -51,7 +52,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
         super.afterPropertiesSet();
         String[] configUrls = StringUtils.splitByWholeSeparator(securityProperties.getCode().getImage().getUrl(), ",");
         if (ArrayUtils.isNotEmpty(configUrls)) {
-            Stream.of(configUrls).forEach(urlSet::add);
+            urlSet.addAll(Stream.of(configUrls).collect(Collectors.toSet()));
         }
     }
 
