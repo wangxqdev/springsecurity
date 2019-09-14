@@ -1,7 +1,9 @@
 package com.tec.anji.www.browser.config;
 
+import com.tec.anji.www.core.authentication.mobile.SmsAuthenticationSecurityConfig;
 import com.tec.anji.www.core.properties.SecurityProperties;
-import com.tec.anji.www.core.validate.code.web.filter.ValidateCodeFilter;
+import com.tec.anji.www.core.validate.code.web.filter.ImageCodeFilter;
+import com.tec.anji.www.core.validate.code.web.filter.SmsCodeFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +36,8 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private UserDetailsService userDetailsService;
 
+    private SmsAuthenticationSecurityConfig smsAuthenticationSecurityConfig;
+
     @Autowired
     @Lazy
     public BrowserSecurityConfig(AuthenticationSuccessHandler authenticationSuccessHandler,
@@ -41,24 +45,28 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
                                  SecurityProperties securityProperties,
                                  PersistentTokenRepository tokenRepository,
                                  DataSource dataSource,
-                                 UserDetailsService userDetailsService) {
+                                 UserDetailsService userDetailsService,
+                                 SmsAuthenticationSecurityConfig smsAuthenticationSecurityConfig) {
         this.authenticationSuccessHandler = authenticationSuccessHandler;
         this.authenticationFailureHandler = authenticationFailureHandler;
         this.securityProperties = securityProperties;
         this.tokenRepository = tokenRepository;
         this.dataSource = dataSource;
         this.userDetailsService = userDetailsService;
+        this.smsAuthenticationSecurityConfig = smsAuthenticationSecurityConfig;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        ValidateCodeFilter validateCodeFilter = new ValidateCodeFilter(authenticationFailureHandler,
-                securityProperties);
-        validateCodeFilter.afterPropertiesSet();
+        ImageCodeFilter imageCodeFilter = new ImageCodeFilter(authenticationFailureHandler, securityProperties);
+        imageCodeFilter.afterPropertiesSet();
+        SmsCodeFilter smsCodeFilter = new SmsCodeFilter(authenticationFailureHandler, securityProperties);
+        smsCodeFilter.afterPropertiesSet();
 //        默认登录方式
 //        http.httpBasic()
 //        表单登录方式
-        http.addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter.class)
+        http.addFilterBefore(imageCodeFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(smsCodeFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin()
                 .loginPage("/authentication/require")
                 .loginProcessingUrl("/authentication/form")
@@ -72,12 +80,14 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/authentication/require",
+                        "/authentication/mobile",
                         securityProperties.getBrowser().getLoginPage(),
                         "/code/*").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
-                .csrf().disable();
+                .csrf().disable()
+                .apply(smsAuthenticationSecurityConfig);
     }
 
     /**

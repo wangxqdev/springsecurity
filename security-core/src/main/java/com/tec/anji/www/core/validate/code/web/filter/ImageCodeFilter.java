@@ -4,7 +4,6 @@ import com.tec.anji.www.core.properties.SecurityProperties;
 import com.tec.anji.www.core.validate.code.ImageCode;
 import com.tec.anji.www.core.validate.code.exception.ValidateCodeException;
 import com.tec.anji.www.core.validate.code.service.ValidateCodeProcessor;
-import com.tec.anji.www.core.validate.code.web.controller.ValidateCodeController;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -27,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ValidateCodeFilter extends OncePerRequestFilter implements InitializingBean {
+public class ImageCodeFilter extends OncePerRequestFilter implements InitializingBean {
 
     private AuthenticationFailureHandler authenticationFailureHandler;
 
@@ -43,7 +42,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
         }
     };
 
-    public ValidateCodeFilter(AuthenticationFailureHandler authenticationFailureHandler, SecurityProperties securityProperties) {
+    public ImageCodeFilter(AuthenticationFailureHandler authenticationFailureHandler, SecurityProperties securityProperties) {
         this.authenticationFailureHandler = authenticationFailureHandler;
         this.securityProperties = securityProperties;
     }
