@@ -16,12 +16,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     private Log log = LogFactory.getLog(getClass());
 
-    private PasswordEncoder passwordEncoder;
-
     @Autowired
-    public UserDetailsServiceImpl(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
+    private PasswordEncoder passwordEncoder;
 
     /**
      *

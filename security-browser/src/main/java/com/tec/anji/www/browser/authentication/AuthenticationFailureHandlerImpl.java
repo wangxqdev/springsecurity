@@ -23,16 +23,11 @@ public class AuthenticationFailureHandlerImpl extends SimpleUrlAuthenticationFai
 
     private Log log = LogFactory.getLog(getClass());
 
+    @Autowired
     private ObjectMapper objectMapper;
 
-    private SecurityProperties securityProperties;
-
     @Autowired
-    public AuthenticationFailureHandlerImpl(ObjectMapper objectMapper,
-                                            SecurityProperties securityProperties) {
-        this.objectMapper = objectMapper;
-        this.securityProperties = securityProperties;
-    }
+    private SecurityProperties securityProperties;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,

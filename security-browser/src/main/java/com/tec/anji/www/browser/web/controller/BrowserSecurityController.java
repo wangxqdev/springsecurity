@@ -1,6 +1,7 @@
 package com.tec.anji.www.browser.web.controller;
 
 import com.tec.anji.www.browser.web.support.SimpleResponse;
+import com.tec.anji.www.core.properties.SecurityConstants;
 import com.tec.anji.www.core.properties.SecurityProperties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -29,14 +30,10 @@ public class BrowserSecurityController {
 
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
+    @Autowired
     private SecurityProperties securityProperties;
 
-    @Autowired
-    public BrowserSecurityController(SecurityProperties securityProperties) {
-        this.securityProperties = securityProperties;
-    }
-
-    @RequestMapping("/authentication/require")
+    @RequestMapping(SecurityConstants.DEFAULT_AUTHENTICATION_URL)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public SimpleResponse requireAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
         SavedRequest savedRequest = requestCache.getRequest(request, response);

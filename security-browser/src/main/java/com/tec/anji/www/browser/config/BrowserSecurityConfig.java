@@ -1,77 +1,55 @@
 package com.tec.anji.www.browser.config;
 
+import com.tec.anji.www.core.authentication.AbstractChannelSecurityConfig;
 import com.tec.anji.www.core.authentication.mobile.SmsAuthenticationSecurityConfig;
+import com.tec.anji.www.core.properties.SecurityConstants;
 import com.tec.anji.www.core.properties.SecurityProperties;
-import com.tec.anji.www.core.validate.code.web.filter.ImageCodeFilter;
-import com.tec.anji.www.core.validate.code.web.filter.SmsCodeFilter;
+import com.tec.anji.www.core.validate.code.config.ValidateCodeSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import javax.sql.DataSource;
 
 @Configuration
-public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
+public class BrowserSecurityConfig extends AbstractChannelSecurityConfig {
 
-    private AuthenticationSuccessHandler authenticationSuccessHandler;
-
-    private AuthenticationFailureHandler authenticationFailureHandler;
-
+    @Autowired
     private SecurityProperties securityProperties;
 
+    /**
+     * 延迟加载
+     */
+    @Autowired
+    @Lazy
     private PersistentTokenRepository tokenRepository;
 
+    @Autowired
     private DataSource dataSource;
 
+    @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
     private SmsAuthenticationSecurityConfig smsAuthenticationSecurityConfig;
 
     @Autowired
-    @Lazy
-    public BrowserSecurityConfig(AuthenticationSuccessHandler authenticationSuccessHandler,
-                                 AuthenticationFailureHandler authenticationFailureHandler,
-                                 SecurityProperties securityProperties,
-                                 PersistentTokenRepository tokenRepository,
-                                 DataSource dataSource,
-                                 UserDetailsService userDetailsService,
-                                 SmsAuthenticationSecurityConfig smsAuthenticationSecurityConfig) {
-        this.authenticationSuccessHandler = authenticationSuccessHandler;
-        this.authenticationFailureHandler = authenticationFailureHandler;
-        this.securityProperties = securityProperties;
-        this.tokenRepository = tokenRepository;
-        this.dataSource = dataSource;
-        this.userDetailsService = userDetailsService;
-        this.smsAuthenticationSecurityConfig = smsAuthenticationSecurityConfig;
-    }
+    private ValidateCodeSecurityConfig validateCodeSecurityConfig;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        ImageCodeFilter imageCodeFilter = new ImageCodeFilter(authenticationFailureHandler, securityProperties);
-        imageCodeFilter.afterPropertiesSet();
-        SmsCodeFilter smsCodeFilter = new SmsCodeFilter(authenticationFailureHandler, securityProperties);
-        smsCodeFilter.afterPropertiesSet();
-//        默认登录方式
-//        http.httpBasic()
-//        表单登录方式
-        http.addFilterBefore(imageCodeFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(smsCodeFilter, UsernamePasswordAuthenticationFilter.class)
-                .formLogin()
-                .loginPage("/authentication/require")
-                .loginProcessingUrl("/authentication/form")
-                .successHandler(authenticationSuccessHandler)
-                .failureHandler(authenticationFailureHandler)
+        applyUsernamePasswordAuthenticationConfig(http);
+
+        http.apply(validateCodeSecurityConfig)
+                .and()
+                .apply(smsAuthenticationSecurityConfig)
                 .and()
                 .rememberMe()
                 .tokenRepository(tokenRepository)
@@ -79,15 +57,14 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
                 .userDetailsService(userDetailsService)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/authentication/require",
-                        "/authentication/mobile",
+                .antMatchers(SecurityConstants.DEFAULT_AUTHENTICATION_URL,
+                        SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE,
                         securityProperties.getBrowser().getLoginPage(),
-                        "/code/*").permitAll()
+                        SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX.concat("*")).permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
-                .csrf().disable()
-                .apply(smsAuthenticationSecurityConfig);
+                .csrf().disable();
     }
 
     /**
@@ -104,7 +81,6 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
         return new JdbcTokenRepositoryImpl() {
             {
                 setDataSource(dataSource);
-//                setCreateTableOnStartup(true);
             }
         };
     }

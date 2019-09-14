@@ -11,15 +11,11 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 
-@Component
+@Component("smsValidateCodeGenerator")
 public class SmsCodeGenerator implements ValidateCodeGenerator {
 
-    private SecurityProperties securityProperties;
-
     @Autowired
-    public SmsCodeGenerator(SecurityProperties securityProperties) {
-        this.securityProperties = securityProperties;
-    }
+    private SecurityProperties securityProperties;
 
     @Override
     public ValidateCode generate(HttpServletRequest request) {

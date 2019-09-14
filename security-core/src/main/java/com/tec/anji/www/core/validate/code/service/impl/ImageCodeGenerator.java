@@ -4,20 +4,20 @@ import com.tec.anji.www.core.properties.SecurityProperties;
 import com.tec.anji.www.core.validate.code.ImageCode;
 import com.tec.anji.www.core.validate.code.ValidateCode;
 import com.tec.anji.www.core.validate.code.service.ValidateCodeGenerator;
+import lombok.Data;
 import org.springframework.web.bind.ServletRequestUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
+@Data
 public class ImageCodeGenerator implements ValidateCodeGenerator {
 
     private SecurityProperties securityProperties;
-
-    public ImageCodeGenerator(SecurityProperties securityProperties) {
-        this.securityProperties = securityProperties;
-    }
 
     @Override
     public ValidateCode generate(HttpServletRequest request) {

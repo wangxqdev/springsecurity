@@ -14,20 +14,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class SmsAuthenticationSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
+    @Autowired
     private AuthenticationSuccessHandler authenticationSuccessHandler;
 
+    @Autowired
     private AuthenticationFailureHandler authenticationFailureHandler;
 
-    private UserDetailsService userDetailsService;
-
     @Autowired
-    public SmsAuthenticationSecurityConfig(AuthenticationSuccessHandler authenticationSuccessHandler,
-                                           AuthenticationFailureHandler authenticationFailureHandler,
-                                           UserDetailsService userDetailsService) {
-        this.authenticationSuccessHandler = authenticationSuccessHandler;
-        this.authenticationFailureHandler = authenticationFailureHandler;
-        this.userDetailsService = userDetailsService;
-    }
+    private UserDetailsService userDetailsService;
 
     @Override
     public void configure(HttpSecurity http) {

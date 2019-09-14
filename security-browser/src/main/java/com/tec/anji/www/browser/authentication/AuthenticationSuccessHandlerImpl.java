@@ -21,16 +21,11 @@ public class AuthenticationSuccessHandlerImpl extends SavedRequestAwareAuthentic
 
     private Log log = LogFactory.getLog(getClass());
 
+    @Autowired
     private ObjectMapper objectMapper;
 
-    private SecurityProperties securityProperties;
-
     @Autowired
-    public AuthenticationSuccessHandlerImpl(ObjectMapper objectMapper,
-                                            SecurityProperties securityProperties) {
-        this.objectMapper = objectMapper;
-        this.securityProperties = securityProperties;
-    }
+    private SecurityProperties securityProperties;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
