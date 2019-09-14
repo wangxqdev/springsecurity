@@ -2,6 +2,7 @@ package com.tec.anji.www.core.validate.code.service.impl;
 
 import com.tec.anji.www.core.properties.SecurityProperties;
 import com.tec.anji.www.core.validate.code.ImageCode;
+import com.tec.anji.www.core.validate.code.ValidateCode;
 import com.tec.anji.www.core.validate.code.service.ValidateCodeGenerator;
 import org.springframework.web.bind.ServletRequestUtils;
 
@@ -19,7 +20,7 @@ public class ImageCodeGenerator implements ValidateCodeGenerator {
     }
 
     @Override
-    public ImageCode generate(HttpServletRequest request) {
+    public ValidateCode generate(HttpServletRequest request) {
         int width = ServletRequestUtils.getIntParameter(request, "width", securityProperties.getCode().getImage().getWidth());
         int height = ServletRequestUtils.getIntParameter(request, "height", securityProperties.getCode().getImage().getHeight());
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
