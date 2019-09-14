@@ -3,6 +3,7 @@ package com.tec.anji.www.core.validate.code.web.filter;
 import com.tec.anji.www.core.properties.SecurityProperties;
 import com.tec.anji.www.core.validate.code.ImageCode;
 import com.tec.anji.www.core.validate.code.exception.ValidateCodeException;
+import com.tec.anji.www.core.validate.code.service.ValidateCodeProcessor;
 import com.tec.anji.www.core.validate.code.web.controller.ValidateCodeController;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -71,7 +72,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
     }
 
     private void validate(ServletWebRequest request) throws ServletRequestBindingException {
-        ImageCode codeInSession = (ImageCode) sessionStrategy.getAttribute(request, ValidateCodeController.SESSION_KEY);
+        ImageCode codeInSession = (ImageCode) sessionStrategy.getAttribute(request, ValidateCodeProcessor.SESSION_KEY.concat("IMAGE"));
         String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), "imageCode");
 
         if (StringUtils.isBlank(codeInRequest)) {
@@ -83,7 +84,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
         }
 
         if (codeInSession.isExpired()) {
-            sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_KEY);
+            sessionStrategy.removeAttribute(request, ValidateCodeProcessor.SESSION_KEY.concat("IMAGE"));
             throw new ValidateCodeException("验证码已过期");
         }
 
@@ -91,6 +92,6 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
             throw new ValidateCodeException("验证码不匹配");
         }
 
-        sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_KEY);
+        sessionStrategy.removeAttribute(request, ValidateCodeProcessor.SESSION_KEY.concat("IMAGE"));
     }
 }
